@@ -1,11 +1,20 @@
-$version = Read-Host -Prompt 'Enter version number'
+Write-Host "Building Chocolately Package for Burnaware Premium..."
+
+Write-Host "Getting current version..."
+$currentversionurl = "www.burnaware.com/download.html"
+$currentversion = Invoke-WebRequest -Uri $currentversionurl 
+$version = [regex]::match($currentversion.Content, "BurnAware Premium.*Version (.*?)<br />", [Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
+Write-Host "Version: $version"
+
+Write-Host "Downloading file to get the filehash..."
 $url = "https://www.burnaware.com/downloads/burnaware_premium_$version.exe"
 $whatsnewurl = "www.burnaware.com/whats-new.html"
 $outfile = ".\temp\premium_$version"
 Invoke-WebRequest -Uri $url -outfile $outfile
 $filehash = (Get-FileHash $outfile).Hash
-Write-Host "File hash is $filehash"
+Write-Host "File hash: $filehash"
 Remove-Item –path $outfile
+
 Write-Host "Getting changelog info..."
 $whatsnew = Invoke-WebRequest -Uri $whatsnewurl 
 
@@ -44,8 +53,13 @@ $nstemplate = $nstemplate -replace "%newfeatures%", "$newfeatures"
 $nstemplate = $nstemplate -replace "%enhancements%", "$enhancements"
 $nstemplate = $nstemplate -replace "%bugfixes%", "$bugfixes"
 $nstemplate | Out-File ".\burnawarepremium\burnawarepremium.nuspec"
+
+Write-Host "Creating choco package..."
 cd .\burnawarepremium
 cpack
+Write-Host "Uploading choco package..."
 cpush
+Write-Host "Delete choco package..."
 del *.$version.nupkg
 cd ..
+Write-Host "Script completed"
