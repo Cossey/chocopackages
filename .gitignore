@@ -1,5 +1,6 @@
 *.nupkg
 *.exe
-temp/
-burnawarepremium/
-burnawarepro/
+/temp
+/burnawarepremium
+/burnawarepro
+/burnawarefree
