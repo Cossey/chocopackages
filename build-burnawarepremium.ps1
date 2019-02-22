@@ -5,9 +5,11 @@ $currentversionurl = "www.burnaware.com/download.html"
 $currentversion = Invoke-WebRequest -Uri $currentversionurl 
 $version = [regex]::match($currentversion.Content, "BurnAware Premium.*Version (.*?)<br />", [Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
 Write-Host "Version: $version"
+$url = [regex]::match($currentversion.Content, "BurnAware Premium.*?href=`"(.*?)`"", [Text.RegularExpressions.RegexOptions]::Singleline).Groups[1].Value
+if ($url.StartsWith("/")) { $url = "https://www.burnaware.com" + $url }
+Write-Host "Download Link: $url"
 
 Write-Host "Downloading file to get the filehash..."
-$url = "https://www.burnaware.com/downloads/burnaware_premium_$version.exe"
 $whatsnewurl = "www.burnaware.com/whats-new.html"
 $outfile = ".\temp\premium_$version"
 Invoke-WebRequest -Uri $url -outfile $outfile
