@@ -1,5 +1,10 @@
 Write-Host "Building Chocolately Package for Burnaware Pro..."
 
+Write-Host "Create Folders..."
+New-Item -Path . -Name "temp" -ItemType "directory" -ErrorAction Ignore
+New-Item -Path . -Name "burnawarepro" -ItemType "directory" -ErrorAction Ignore
+New-Item -Path .\burnawarepro -Name "tools" -ItemType "directory" -ErrorAction Ignore
+
 Write-Host "Getting current version..."
 $currentversionurl = "www.burnaware.com/download.html"
 $currentversion = Invoke-WebRequest -Uri $currentversionurl 
@@ -15,7 +20,7 @@ $outfile = ".\temp\pro_$version"
 Invoke-WebRequest -Uri $url -outfile $outfile
 $filehash = (Get-FileHash $outfile).Hash
 Write-Host "File hash: $filehash"
-Remove-Item –path $outfile
+Remove-Item -path $outfile
 
 Write-Host "Getting changelog info..."
 $whatsnew = Invoke-WebRequest -Uri $whatsnewurl 
@@ -57,11 +62,11 @@ $nstemplate = $nstemplate -replace "%bugfixes%", "$bugfixes"
 $nstemplate | Out-File ".\burnawarepro\burnawarepro.nuspec"
 
 Write-Host "Creating choco package..."
-cd .\burnawarepro
+Set-Location -Path .\burnawarepro
 cpack
 Write-Host "Uploading choco package..."
 cpush
 Write-Host "Delete choco package..."
-del *.$version.nupkg
-cd ..
+Remove-Item *.$version.nupkg
+Set-Location -Path ..
 Write-Host "Script completed"
