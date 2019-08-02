@@ -66,7 +66,7 @@ Set-Location -Path .\burnawarefree
 cpack
 Write-Host "Uploading choco package..."
 cpush
-Write-Host "Delete choco package..."
-Remove-Item *.$version.nupkg
+Write-Host "Delete folder..."
 Set-Location -Path ..
+Remove-Item -path .\burnawarefree -recurse
 Write-Host "Script completed"
